@@ -1,12 +1,19 @@
 import express from 'express';
+import path from 'path';
 import fs from 'fs';
 import readline from 'readline';
 import cors from 'cors';
+import { fileURLToPath } from 'url';
+
+// Fix for __dirname in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // Make port flexible for deployment
 
 app.use(cors());
-app.use(express.json()); // Middleware to parse JSON data
+app.use(express.json());
 
 // Function to read a file line by line
 async function readFileLines(filePath) {
@@ -23,10 +30,17 @@ async function readFileLines(filePath) {
     return lines;
 }
 
+// Modified file path handling for deployment
+function getFilePath(fileName) {
+    return process.env.NODE_ENV === 'production'
+        ? path.join('/tmp', fileName)
+        : path.join(__dirname, fileName);
+}
+
 // API: Get all lines from a file
 app.get("/get-lines/:fileName", async (req, res) => {
-    const fileName = req.params.fileName+".txt";
-    const filePath = `./${fileName}`;
+    const fileName = req.params.fileName + ".txt";
+    const filePath = getFilePath(fileName);
 
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ error: "File not found" });
@@ -40,15 +54,11 @@ app.get("/get-lines/:fileName", async (req, res) => {
     }
 });
 
-
-
-
-
 // API: Append a new line to a file
 app.post("/add-line/:fileName", (req, res) => {
-    const fileName = req.params.fileName+".txt";
-    const filePath = `./${fileName}`;
-    const newLine = req.body.newLine; // Get user input from request body
+    const fileName = req.params.fileName + ".txt";
+    const filePath = getFilePath(fileName);
+    const newLine = req.body.newLine;
 
     if (!newLine) {
         return res.status(400).json({ error: "No content provided" });
@@ -63,12 +73,11 @@ app.post("/add-line/:fileName", (req, res) => {
     });
 });
 
-
 // API: Delete a specific line from a file
 app.delete("/delete-line/:fileName/:lineNumber", async (req, res) => {
-    const fileName = req.params.fileName+".txt";
+    const fileName = req.params.fileName + ".txt";
     const lineNumber = parseInt(req.params.lineNumber);
-    const filePath = `./${fileName}`;
+    const filePath = getFilePath(fileName);
 
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ error: "File not found" });
@@ -93,7 +102,15 @@ app.delete("/delete-line/:fileName/:lineNumber", async (req, res) => {
     }
 });
 
+// Serve static files from React build directory
+app.use(express.static(path.join(__dirname, '../client/my-app/build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname, '../client/my-app/build', 'index.html'));
+});
+
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
