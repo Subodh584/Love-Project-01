@@ -7,7 +7,7 @@ export default function ValentineCard() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-
+    localStorage.removeItem("UserName");
     navigate('/login'); 
   };
 

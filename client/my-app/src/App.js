@@ -17,7 +17,6 @@ function App() {
           <Route path="/reasons" element={<Chat fName={"Reasons"} />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="test" element={<Test />} />
       </Routes>
     </BrowserRouter>
   );
