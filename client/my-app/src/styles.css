@@ -198,11 +198,7 @@ body {
     }
 }
 
-@media (max-width: 600px) {
-    .reasonsGrid {
-        grid-template-columns: repeat(1, 1fr); /* Small screens: 1 card per row */
-    }
-}
+
 
 .pin-container {
     text-align: center;

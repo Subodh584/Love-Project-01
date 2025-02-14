@@ -69,8 +69,8 @@ export default function ValentineCard() {
           >
             <div className="reasons-grid">
               <div className="reason-card">
-                <span className="reason-number">#1</span>
-                <p className="reason-text">Reasons I Love U</p>
+                <span className="reason-number">#2</span>
+                <p className="reason-text">100 Reasons I Love U</p>
               </div>
             </div>
           </div>
